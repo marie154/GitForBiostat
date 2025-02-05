@@ -22,26 +22,12 @@ x %\>% mean(y) er det samme som mean(x\$y)
 
 Vi ser på det med datasettet penguins fra palmerpenguins biblioteket (installer om nødvendig)
 
-```{r addition}
+Prøve grunnleggende syntaks for dplyr.
+
+```{r last inn og se på data}
+#last inn data
 penguins <- palmerpenguins::penguins
 
-mean(penguins$body_mass)
-
-penguins %>% mean(body_mass)
-
-```
-
-Pipene er aller mest nyttig når man skal gjøre flere steg i sekvens på samme datasett
-
-### Last inn data
-
-Last inn penguins datasettet og få en oversikt. Først i base R og så i tidy.
-
-Bruk head() og summary()
-
-Prøve basic syntax.
-
-```{r view_data}
 #base R
 head(penguins)
 
@@ -52,25 +38,59 @@ penguins %>%
 penguins %>%
   summary()
 
-penguins%>% View()
 
 
 ```
 
-### Reshaping data
+### Vanlige R kommandoer fungerer ofte også med dplyr
+
+Pipen gjør at første argument i funksjonen er det som kommer før pipen.
+
+For å oppsummere data med tidyverse bruker man "summarise" funksjonene. Disse tar en vektor med verdier og returnerer en enkeltverdi, f.eks:
+
+first/last/nth: første/siste/n-te verdi
+
+min/max: minimum og maks
+
+```{r addition}
+
+mean(penguins$body_mass_g, na.rm=T)
+
+penguins %>% 
+  summarise(mean_bmg = mean(body_mass_g, na.rm = T))
+
+
+```
+
+### Piper i sekvens
+
+Pipene er aller mest nyttig når man skal gjøre flere steg i sekvens på samme datasett
+
+Vi ser at det er noen pingviner som har NA for målinger. Da kan vi bruke piper i sekvens til å fjerne rader med NA verdier før vi tar mean.
+
+Filtrering av rader gjør man med funksjon filter() sammen med f.eks logiske operatører \>, \<, ==, \|
 
 ```{r Reshape}
 
-penguins %>%
-  gather(year, "n", 2:4)
+#Tar bort de som mangler body mass måling
+penguins %>% 
+  filter(!is.na(body_mass_g)) %>%
+  summarise(mean_bmg = mean(body_mass_g))
 
-
-penguins %>% arrange(bill_length_mm) %>% head()
-
+# Kan legge på flere filtreringer
+# f.eks bare se på damepingviner
+penguins %>% 
+  filter(!is.na(body_mass_g),
+         sex=="female") %>%
+  summarise(mean_bmg = mean(body_mass_g))
 
 ```
 
 ### Subset observations
+
+Kan gjøre enda flere subset
+
+Kan velge ut variabler man vil ha med videre
 
 ```{r subset}
 
