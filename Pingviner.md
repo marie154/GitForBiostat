@@ -1,7 +1,7 @@
 Git, Github, dplyr og ggplot for biostat
 ================
 
-## En rask intro til dplyr
+# En rask intro til dplyr
 
 Pakken tidyverse laster inn pakkene dplyr,, readr, forcats, stringr,
 ggplot2, tibble, lubridate, tidyr, purrr. Disse fungerer godt sammen med
@@ -58,7 +58,7 @@ penguins %>%
     ## 6 Adelie  Torgersen           39.3          20.6               190        3650
     ## # ℹ 2 more variables: sex <fct>, year <int>
 
-### Oppsummere data med dplyr
+## Oppsummere data med dplyr
 
 Pipen gjør at første argument i funksjonen er det som kommer før pipen.
 
@@ -87,7 +87,25 @@ penguins %>%
     ##      <dbl>
     ## 1    4202.
 
-### Piper i sekvens
+``` r
+#Øvelse: Lag en dplyr kode som finner minimum av nebblengde (bill_length_mm)
+
+penguins %>% summarise(min_bl = min(bill_length_mm, na.rm = T))
+```
+
+    ## # A tibble: 1 × 1
+    ##   min_bl
+    ##    <dbl>
+    ## 1   32.1
+
+### Første oppgave!
+
+- Legg til en R kodesnutt (Den lille grønne “+C” knappen øverst til
+  høyre)
+
+- Skriv inn kode for å finne minimum av nebblengde (bill_length_mm)
+
+## Piper i sekvens
 
 Pipene er aller mest nyttig når man skal gjøre flere steg i sekvens på
 samme datasett
@@ -127,38 +145,19 @@ penguins %>%
 
 ### Velge variabler
 
-Man kan filtrere variabler med select. Det er mange nyttige funksjoner
-som fungerer sammen med select, f.eks:
+Man kan velge variabler med select. Det er mange nyttige funksjoner som
+fungerer sammen med select, f.eks:
 
-- select(penguins, all_of(c(“species”,“island”)) - tar med alle nevnte
-  variabler (varianter: any_of(), one_of() )
+- **select(penguins, all_of(c(“species”,“island”))** - tar med alle
+  nevnte variabler (varianter: **any_of(), one_of()** )
 
-- select(penguins, ends_with(“mm”)) - tar med alle variabler som ender
-  med mm (varianter: startswith(), contains() )
+- **select(penguins, ends_with(“mm”))** - tar med alle variabler som
+  ender med mm (varianter: **startswith(), contains()** )
 
-- select(penguins, -species) - tar med alle variabler utenom species
-
-``` r
-#filter to subset observations
-penguins %>%
-  filter(island=="Dream")%>%
-  filter(bill_length_mm<200)%>%
-  head()
-```
-
-    ## # A tibble: 6 × 8
-    ##   species island bill_length_mm bill_depth_mm flipper_length_mm body_mass_g
-    ##   <fct>   <fct>           <dbl>         <dbl>             <int>       <int>
-    ## 1 Adelie  Dream            39.5          16.7               178        3250
-    ## 2 Adelie  Dream            37.2          18.1               178        3900
-    ## 3 Adelie  Dream            39.5          17.8               188        3300
-    ## 4 Adelie  Dream            40.9          18.9               184        3900
-    ## 5 Adelie  Dream            36.4          17                 195        3325
-    ## 6 Adelie  Dream            39.2          21.1               196        4150
-    ## # ℹ 2 more variables: sex <fct>, year <int>
+- **select(penguins, -species)** - tar med alle variabler utenom species
 
 ``` r
-#select to subset variables
+#Bruk select til å velge variabler
 penguins %>%
   select(species, island, body_mass_g)%>%
   head()
@@ -175,13 +174,34 @@ penguins %>%
     ## 6 Adelie  Torgersen        3650
 
 ``` r
-#Combine and assign
-penguins_filt <- penguins %>%
+# Bruk ends_with() til å velge alle lengdevariablene
+penguins %>%
+  select(ends_with("mm"))
+```
+
+    ## # A tibble: 344 × 3
+    ##    bill_length_mm bill_depth_mm flipper_length_mm
+    ##             <dbl>         <dbl>             <int>
+    ##  1           39.1          18.7               181
+    ##  2           39.5          17.4               186
+    ##  3           40.3          18                 195
+    ##  4           NA            NA                  NA
+    ##  5           36.7          19.3               193
+    ##  6           39.3          20.6               190
+    ##  7           38.9          17.8               181
+    ##  8           39.2          19.6               195
+    ##  9           34.1          18.1               193
+    ## 10           42            20.2               190
+    ## # ℹ 334 more rows
+
+``` r
+#Kombiner og assign til ny dataframe
+penguins_dream <- penguins %>%
   filter(island=="Dream",
          bill_length_mm<200)%>%
   select(species, island, bill_length_mm, body_mass_g)
 
-head(penguins_filt)
+head(penguins_dream)
 ```
 
     ## # A tibble: 6 × 4
@@ -194,47 +214,39 @@ head(penguins_filt)
     ## 5 Adelie  Dream            36.4        3325
     ## 6 Adelie  Dream            39.2        4150
 
-## Summarize data
-
 ``` r
-# Count penguins for each species / island
-penguins %>%
-  count(species, island, .drop = FALSE)
+#Lage et datasett uten NA for målinger
+penguins_filt <- penguins %>%
+  filter(!is.na(bill_length_mm))
 ```
 
-    ## # A tibble: 9 × 3
+## Summarize data
+
+Nyttige funksjoner for å oppsummere data er summarise() og count().
+
+Funksjonen count() teller antall rader med unike verdier av variabler
+
+``` r
+# Count penguins for each species and island
+penguins %>%
+  count(species, island)
+```
+
+    ## # A tibble: 5 × 3
     ##   species   island        n
     ##   <fct>     <fct>     <int>
     ## 1 Adelie    Biscoe       44
     ## 2 Adelie    Dream        56
     ## 3 Adelie    Torgersen    52
-    ## 4 Chinstrap Biscoe        0
-    ## 5 Chinstrap Dream        68
-    ## 6 Chinstrap Torgersen     0
-    ## 7 Gentoo    Biscoe      124
-    ## 8 Gentoo    Dream         0
-    ## 9 Gentoo    Torgersen     0
+    ## 4 Chinstrap Dream        68
+    ## 5 Gentoo    Biscoe      124
+
+Funksjonene summarise() og summarise(across()) oppsummerer data til en
+enkelt rad med verdier. Også fin å bruke med group_by() funksjonen, da
+oppsummeres datasettet per gruppe.
 
 ``` r
-penguins %>%
-  dplyr::select(body_mass_g, ends_with("_mm")) %>% 
-  head()
-```
-
-    ## # A tibble: 6 × 4
-    ##   body_mass_g bill_length_mm bill_depth_mm flipper_length_mm
-    ##         <int>          <dbl>         <dbl>             <int>
-    ## 1        3750           39.1          18.7               181
-    ## 2        3800           39.5          17.4               186
-    ## 3        3250           40.3          18                 195
-    ## 4          NA           NA            NA                  NA
-    ## 5        3450           36.7          19.3               193
-    ## 6        3650           39.3          20.6               190
-
-### Bruker “summarise” funksjonene
-
-``` r
-#summarise funksjonen oppsummerer data
+#summarise funksjonen oppsummerer data. Her totalt antall pingviner, og gjennomsnitt neddlengde og -dybde.
 penguins %>%
   summarise(n=n(),
             mean_bl = mean(bill_length_mm, na.rm = T),
@@ -248,90 +260,113 @@ penguins %>%
     ## 1   344    43.9    17.2
 
 ``` r
-#Kan legge inn gruppe for å få gruppevis
-penguins %>%
+# Eller bare samme funksjon, her mean(), på alle variabler
+penguins_filt %>%
+  summarise(across(ends_with("mm"), mean))
+```
+
+    ## # A tibble: 1 × 3
+    ##   bill_length_mm bill_depth_mm flipper_length_mm
+    ##            <dbl>         <dbl>             <dbl>
+    ## 1           43.9          17.2              201.
+
+``` r
+# Kan legge inn gruppe for å få gruppevis per øy
+penguins_filt %>%
   group_by(island)%>%
-  summarise(n=n(),
-            mean_bl = mean(bill_length_mm, na.rm = T),
-            mean_bd = mean(bill_depth_mm, na.rm = T)
-            )
+  summarise(across(ends_with("mm"), mean))
 ```
 
     ## # A tibble: 3 × 4
-    ##   island        n mean_bl mean_bd
-    ##   <fct>     <int>   <dbl>   <dbl>
-    ## 1 Biscoe      168    45.3    15.9
-    ## 2 Dream       124    44.2    18.3
-    ## 3 Torgersen    52    39.0    18.4
+    ##   island    bill_length_mm bill_depth_mm flipper_length_mm
+    ##   <fct>              <dbl>         <dbl>             <dbl>
+    ## 1 Biscoe              45.3          15.9              210.
+    ## 2 Dream               44.2          18.3              193.
+    ## 3 Torgersen           39.0          18.4              191.
+
+## Bruke mutate() til å endre eller lage variabler
+
+Mutate() brukes til å lage nye variabler (=vektor) fra andre variabler
+(vektorer). Kan brukes alene eller med across() for å lage flere
+variabler samtidig
+
+Her bruker vi mutate() til å lage en variabel for pingvinBMI basert på
+vekt og flipperlengde. Samtidig gjør vi en assign (\<-) sånn at vi
+endrer den opprinnelige dataframen.
 
 ``` r
-penguins %>%
-  group_by(island, sex)%>%
-  summarise(n=n(),
-            mean_bl = mean(bill_length_mm, na.rm = T),
-            mean_bd = mean(bill_depth_mm, na.rm = T)
+penguins_filt <- penguins_filt %>%
+  mutate(pBMI = body_mass_g/flipper_length_mm)
+
+# hvordan ser denne variabelen ut?
+penguins_filt %>%
+  summarise(mean=mean(pBMI),
+            sd=sd(pBMI),
+            min=min(pBMI),
+            max=max(pBMI)
             )
 ```
 
-    ## `summarise()` has grouped output by 'island'. You can override using the
-    ## `.groups` argument.
+    ## # A tibble: 1 × 4
+    ##    mean    sd   min   max
+    ##   <dbl> <dbl> <dbl> <dbl>
+    ## 1  20.8  2.76  14.1  28.5
 
-    ## # A tibble: 9 × 5
-    ## # Groups:   island [3]
-    ##   island    sex        n mean_bl mean_bd
-    ##   <fct>     <fct>  <int>   <dbl>   <dbl>
-    ## 1 Biscoe    female    80    43.3    15.2
-    ## 2 Biscoe    male      83    47.1    16.6
-    ## 3 Biscoe    <NA>       5    45.6    14.6
-    ## 4 Dream     female    61    42.3    17.6
-    ## 5 Dream     male      62    46.1    19.1
-    ## 6 Dream     <NA>       1    37.5    18.9
-    ## 7 Torgersen female    24    37.6    17.6
-    ## 8 Torgersen male      23    40.6    19.4
-    ## 9 Torgersen <NA>       5    37.9    18.2
-
-## Basic ggplot plotting
+# Grunnleggende plotting med ggplot
 
 Programmet ggplot (grammar of graphics) har tre grunnleggende elementer:
 
-data: en dataframe med input til figur estetikk (aes()) : spesifiser x,
-y, farge, form, størrelse geometri: spesifiser hvordan
+- data: en dataframe med input til figur
 
-ggplot er modulært så kan bygges på med modifikasjoner i det uendelige.
+- estetikk (aes()) : spesifiser x, y, farge, form, størrelse
+
+- geometri: spesifiser hvordan data skal plottes (f.eks geom_bar,
+  geom_point, geom_hist, …)
+
+Ggplot fungerer godt sammen med tidyverse.
+
+Ggplot er **modulært** så kan bygges på med modifikasjoner i det
+uendelige. For å legge til spesifikasjoner brukes + mellom modulene.
 
 ``` r
-penguins %>%
+# Basic boxplot
+penguins_filt %>%
   ggplot(aes(x=sex, y=bill_length_mm))+
   geom_boxplot()
 ```
 
-    ## Warning: Removed 2 rows containing non-finite outside the scale range
-    ## (`stat_boxplot()`).
-
-![](Pingviner_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](Pingviner_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
-penguins %>%
+# Basic boxplot men vil ha med data som points og farger
+penguins_filt %>%
+  ggplot(aes(x=sex, y=bill_length_mm, color=sex))+
+  geom_boxplot()+
+  geom_jitter()
+```
+
+![](Pingviner_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+``` r
+# Scatterplot, legger til instruks for farge i aes()
+penguins_filt %>%
   ggplot(aes(x=bill_depth_mm, y=bill_length_mm, color=species))+
   geom_point()
 ```
 
-    ## Warning: Removed 2 rows containing missing values or values outside the scale range
-    ## (`geom_point()`).
-
-![](Pingviner_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+![](Pingviner_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
 
 ``` r
-penguins %>%
+# Legger til "theme" for å modifisere utseende
+penguins_filt %>%
   ggplot(aes(x=bill_depth_mm, y=bill_length_mm, color=species))+
   geom_point()+
   theme_bw()
 ```
 
-    ## Warning: Removed 2 rows containing missing values or values outside the scale range
-    ## (`geom_point()`).
+![](Pingviner_files/figure-gfm/unnamed-chunk-4-4.png)<!-- -->
 
-![](Pingviner_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
+    # Histogram example: flipper length by species ggplot(data = penguins, aes(x = flipper_length_mm)) +   geom_histogram(aes(fill = species), alpha = 0.5, position = "identity") +   scale_fill_manual(values = c("darkorange","darkorchid","cyan4"))
 
 Kan bruke dlkyr til å pipe data rett i en pca
 
@@ -347,7 +382,7 @@ penguin.pca$x %>%
   geom_point()
 ```
 
-![](Pingviner_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Pingviner_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 penguin.pca$rotation %>%
@@ -355,7 +390,7 @@ penguin.pca$rotation %>%
   geom_text()
 ```
 
-![](Pingviner_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+![](Pingviner_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
 ``` r
 penguins %>%
@@ -374,4 +409,4 @@ penguins %>%
     ## Warning: Removed 2 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](Pingviner_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
+![](Pingviner_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
