@@ -1,7 +1,7 @@
 Git, Github, dplyr og ggplot for biostat
 ================
 
-## En rask intro til pipes i dplyr
+## En rask intro til dplyr
 
 Pakken tidyverse laster inn pakkene dplyr,, readr, forcats, stringr,
 ggplot2, tibble, lubridate, tidyr, purrr. Disse fungerer godt sammen med
@@ -12,14 +12,15 @@ En *pipe* er symbolet %\>% (eller \|\>) med hurtigtast ctrl-shift-m.
 Pipen tar innholdet på venstre side og legger det som første argument
 til funksjonen på høyre side .
 
-x %\>% f(y) er det samme som f(x,y)
+- x %\>% f(y) er det samme som f(x,y)
 
-x %\>% mean(y) er det samme som mean(x\$y)
+- x %\>% mean(y) er det samme som mean(x\$y)
 
 Vi ser på det med datasettet penguins fra palmerpenguins biblioteket
 (installer om nødvendig)
 
-Prøve grunnleggende syntaks for dplyr.
+Under skal vi prøve grunnleggende syntaks for dplyr og se om det blir
+likt som “base R”
 
 ``` r
 #last inn data
@@ -57,38 +58,18 @@ penguins %>%
     ## 6 Adelie  Torgersen           39.3          20.6               190        3650
     ## # ℹ 2 more variables: sex <fct>, year <int>
 
-``` r
-penguins %>%
-  summary()
-```
-
-    ##       species          island    bill_length_mm  bill_depth_mm  
-    ##  Adelie   :152   Biscoe   :168   Min.   :32.10   Min.   :13.10  
-    ##  Chinstrap: 68   Dream    :124   1st Qu.:39.23   1st Qu.:15.60  
-    ##  Gentoo   :124   Torgersen: 52   Median :44.45   Median :17.30  
-    ##                                  Mean   :43.92   Mean   :17.15  
-    ##                                  3rd Qu.:48.50   3rd Qu.:18.70  
-    ##                                  Max.   :59.60   Max.   :21.50  
-    ##                                  NA's   :2       NA's   :2      
-    ##  flipper_length_mm  body_mass_g       sex           year     
-    ##  Min.   :172.0     Min.   :2700   female:165   Min.   :2007  
-    ##  1st Qu.:190.0     1st Qu.:3550   male  :168   1st Qu.:2007  
-    ##  Median :197.0     Median :4050   NA's  : 11   Median :2008  
-    ##  Mean   :200.9     Mean   :4202                Mean   :2008  
-    ##  3rd Qu.:213.0     3rd Qu.:4750                3rd Qu.:2009  
-    ##  Max.   :231.0     Max.   :6300                Max.   :2009  
-    ##  NA's   :2         NA's   :2
-
-### Vanlige R kommandoer fungerer ofte også med dplyr
+### Oppsummere data med dplyr
 
 Pipen gjør at første argument i funksjonen er det som kommer før pipen.
 
 For å oppsummere data med tidyverse bruker man “summarise” funksjonene.
 Disse tar en vektor med verdier og returnerer en enkeltverdi, f.eks:
 
-first/last/nth: første/siste/n-te verdi
+- first/last/nth: første/siste/n-te verdi
 
-min/max: minimum og maks
+- min/max: minimum og maksimumsverdi
+
+- IQR/sd/var: interquartile range, standardavvik og varians
 
 ``` r
 mean(penguins$body_mass_g, na.rm=T)
@@ -115,7 +96,7 @@ Vi ser at det er noen pingviner som har NA for målinger. Da kan vi bruke
 piper i sekvens til å fjerne rader med NA verdier før vi tar mean.
 
 Filtrering av rader gjør man med funksjon filter() sammen med f.eks
-logiske operatører \>, \<, ==, \|
+logiske operatører \>, \<, ==, !=, \|, &
 
 ``` r
 #Tar bort de som mangler body mass måling
@@ -131,23 +112,31 @@ penguins %>%
 
 ``` r
 # Kan legge på flere filtreringer
-# f.eks bare se på damepingviner
+# f.eks bare se på damepingviner fra Biscoe
 penguins %>% 
   filter(!is.na(body_mass_g),
-         sex=="female") %>%
+         sex=="female",
+         island=="Biscoe") %>%
   summarise(mean_bmg = mean(body_mass_g))
 ```
 
     ## # A tibble: 1 × 1
     ##   mean_bmg
     ##      <dbl>
-    ## 1    3862.
+    ## 1    4319.
 
-### Subset observations
+### Velge variabler
 
-Kan gjøre enda flere subset
+Man kan filtrere variabler med select. Det er mange nyttige funksjoner
+som fungerer sammen med select, f.eks:
 
-Kan velge ut variabler man vil ha med videre
+- select(penguins, all_of(c(“species”,“island”)) - tar med alle nevnte
+  variabler (varianter: any_of(), one_of() )
+
+- select(penguins, ends_with(“mm”)) - tar med alle variabler som ender
+  med mm (varianter: startswith(), contains() )
+
+- select(penguins, -species) - tar med alle variabler utenom species
 
 ``` r
 #filter to subset observations

@@ -79,7 +79,7 @@ penguins %>%
 penguins %>% 
   filter(!is.na(body_mass_g),
          sex=="female",
-         island=Biscoe) %>%
+         island=="Biscoe") %>%
   summarise(mean_bmg = mean(body_mass_g))
 
 ```
@@ -88,11 +88,11 @@ penguins %>%
 
 Man kan filtrere variabler med select. Det er mange nyttige funksjoner som fungerer sammen med select, f.eks:
 
--   select(penguins, all_of(c("species","island")) - tar med alle nevnte variabler (varianter: any_of(), one_of() )
+-   **select(penguins, all_of(c("species","island"))** - tar med alle nevnte variabler (varianter: **any_of(), one_of()** )
 
--   select(penguins, ends_with("mm")) - tar med alle variabler som ender med mm (varianter: startswith(), contains() )
+-   **select(penguins, ends_with("mm"))** - tar med alle variabler som ender med mm (varianter: **startswith(), contains()** )
 
--   select(penguins, -species) - tar med alle variabler utenom species
+-   **select(penguins, -species)** - tar med alle variabler utenom species
 
 ```{r subset}
 
@@ -123,46 +123,37 @@ head(penguins_filt)
 
 ## Summarize data
 
+Nyttige funksjoner for å oppsummere data er summarise() og count().
+
+Funksjonen count() teller antall rader med unike verdier av variabler
+
 ```{r}
-# Count penguins for each species / island
+# Count penguins for each species and island
 penguins %>%
-  count(species, island, .drop = FALSE)
-
-
-penguins %>%
-  dplyr::select(body_mass_g, ends_with("_mm")) %>% 
-  head()
-
+  count(species, island)
 
 ```
 
-### Bruker "summarise" funksjonene
+Funksjonene summarise() og summarise_each() oppsummerer data til en enkelt rad med verdier. Også fin å bruke med group_by() funksjonen, da oppsummeres datasettet per gruppe.
 
 ```{r}
 
-#summarise funksjonen oppsummerer data
+#summarise funksjonen oppsummerer data. Her totalt antall pingviner, og gjennomsnitt neddlengde og -dybde.
 penguins %>%
   summarise(n=n(),
             mean_bl = mean(bill_length_mm, na.rm = T),
             mean_bd = mean(bill_depth_mm, na.rm = T)
             )
+# Eller bare samme funksjon, her mean(), på alle variabler
+penguins %>%
+    summarise_each(funs(mean) )
 
-#Kan legge inn gruppe for å få gruppevis
+
+# Kan legge inn gruppe for å få gruppevis per øy
 penguins %>%
   group_by(island)%>%
-  summarise(n=n(),
-            mean_bl = mean(bill_length_mm, na.rm = T),
-            mean_bd = mean(bill_depth_mm, na.rm = T)
-            )
+  summarise_each(funs(~mean(na.rm=T))
 
-
-
-penguins %>%
-  group_by(island, sex)%>%
-  summarise(n=n(),
-            mean_bl = mean(bill_length_mm, na.rm = T),
-            mean_bd = mean(bill_depth_mm, na.rm = T)
-            )
 
 
 ```
