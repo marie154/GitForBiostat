@@ -56,6 +56,10 @@ mean(penguins$body_mass_g, na.rm=T)
 penguins %>% 
   summarise(mean_bmg = mean(body_mass_g, na.rm = T))
 
+#Øvelse: Lag en dplyr kode som finner minimum av nebblengde (bill_length_mm)
+
+penguins %>% summarise(min_bl = min(bill_length_mm, na.rm = T))
+
 
 ```
 
@@ -94,20 +98,20 @@ Man kan filtrere variabler med select. Det er mange nyttige funksjoner som funge
 
 -   **select(penguins, -species)** - tar med alle variabler utenom species
 
-```{r subset}
+```{r subset variabler}
 
-#filter to subset observations
-penguins %>%
-  filter(island=="Dream")%>%
-  filter(bill_length_mm<200)%>%
-  head()
-
-#select to subset variables
+#Bruk select til å velge variabler
 penguins %>%
   select(species, island, body_mass_g)%>%
   head()
 
-#Combine and assign
+# Bruk ends_with() til å velge alle lengdevariablene
+penguins %>%
+  select(ends_with("mm"))
+
+
+
+#Kombiner og assign til ny dataframe
 penguins_filt <- penguins %>%
   filter(island=="Dream",
          bill_length_mm<200)%>%
@@ -116,8 +120,9 @@ penguins_filt <- penguins %>%
 head(penguins_filt)
 
 
-
-
+#Lage et datasett uten NA for målinger
+penguins_filt <- penguins %>%
+  filter(!is.na(bill_length_mm))
 
 ```
 
