@@ -63,7 +63,8 @@ penguins %>%
 ```{r Øvelse 1}
 #Øvelse: Lag en dplyr kode som finner minimum av nebblengde (bill_length_mm)
 
-
+penguins %>%
+  summarise(min_bill_length_mm = min(bill_length_mm, na.rm = T))
 
 ```
 
