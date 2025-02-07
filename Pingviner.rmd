@@ -9,6 +9,7 @@ library(palmerpenguins)
 ```
 
 # En rask intro til dplyr
+Kilde: Boken ["R for Data Science"](https://r4ds.hadley.nz/) av HAdley Wickham.
 
 Pakken tidyverse laster inn pakkene dplyr, readr, forcats, stringr, ggplot2, tibble, lubridate, tidyr, purrr. Disse fungerer godt sammen med **pipes**.
 
@@ -45,7 +46,7 @@ For å oppsummere data med tidyverse bruker man "summarise" funksjonene. Disse t
 
 -   IQR/sd/var: interquartile range, standardavvik og varians
 
-```{r addition}
+```{r Mean, summarise, pipes}
 
 #Base R
 mean(penguins$body_mass_g, na.rm=T)
@@ -56,21 +57,24 @@ summarise(penguins, mean_bmg=mean(body_mass_g, na.rm=T))
 # Gir samme svar som
 penguins %>% 
   summarise(mean_bmg_pipe = mean(body_mass_g, na.rm = T))
+```
 
+```{r Øvelse 1}
 #Øvelse: Lag en dplyr kode som finner minimum av nebblengde (bill_length_mm)
+
 
 
 ```
 
 ## Piper i sekvens
 
-Pipene er aller mest nyttig når man skal gjøre flere steg i sekvens på samme datasett
+Pipene er aller mest nyttig når man skal gjøre flere steg i sekvens på samme datasett.
 
 Vi ser at det er noen pingviner som har NA for målinger. Da kan vi bruke piper i sekvens til å fjerne rader med NA verdier før vi tar mean. Vi kan lese koden som at %\>% betyr "deretter".
 
-Filtrering av rader gjør man med funksjon filter() sammen med f.eks logiske operatører \>, \<, ==, !=, \|, &
+Filtrering av rader gjør man med funksjon filter() sammen med f.eks logiske operatører \>, \<, ==, !=, \|, &. Filter kan også brukes sammen med spesialfunksjonen %in%.
 
-```{r Reshape}
+```{r Filter og %in%}
 
 #Tar bort de som mangler body mass måling
 penguins %>% 
@@ -85,15 +89,19 @@ penguins %>%
          island=="Biscoe") %>%
   summarise(mean_bmg = mean(body_mass_g))
 
+## Bruke %in% til å velge bare øyene Biscoe og Dream
+penguins %>%
+  filter(island %in% c("Biscoe","Dream"))%>%
+  head()
 ```
 
 ### Velge variabler og sortere variabler
 
 Man kan velge variabler med select. Det er mange nyttige funksjoner som fungerer sammen med select, f.eks:
 
--   **select(penguins, all_of(c("species","island"))** - tar med alle nevnte variabler (varianter: **any_of(), one_of()** )
+-   **select(penguins, all_of(c("species","island"))** - tar med alle nevnte variabler (varianter: **any_of()**)
 
--   **select(penguins, ends_with("mm"))** - tar med alle variabler som ender med mm (varianter: **startswith(), contains()** )
+-   **select(penguins, ends_with("mm"))** - tar med alle variabler som ender med mm (varianter: **starts_with(), contains()** )
 
 -   **select(penguins, -species)** - tar med alle variabler utenom species
 
@@ -101,7 +109,7 @@ Man kan sortere variabler med arrange().
 
 ```{r subset variabler}
 
-#Bruk select til å velge variabler og sortere etter tyngde
+#Bruk select til å beholde variabler og sortere etter tyngde
 penguins %>%
   select(species, island, body_mass_g)%>%
   arrange(body_mass_g)%>%
@@ -111,7 +119,6 @@ penguins %>%
 penguins %>%
   select(species, ends_with("mm"))
 
-
 #Kombiner og assign (lagre til) ny dataframe
 penguins_dream <- penguins %>%
   filter(island=="Dream",
@@ -119,17 +126,20 @@ penguins_dream <- penguins %>%
   select(species, island, bill_length_mm, body_mass_g)
 
 head(penguins_dream)
+```
 
-#Lage et datasett uten NA for målinger og kjønn
+Øvelse: Legg på en linje med kode for å lage et datasett penguins_filt som er uten NA for både bill_length_mm og kjønn
+
+```{r Øvelse 2}
+#ØVELSE: Lage et datasett uten NA for bill_length OG kjønn?
 penguins_filt <- penguins %>%
-  filter(!is.na(bill_length_mm))%>%
-  filter(!is.na(sex))
+  filter(!is.na(bill_length_mm))
 
 ```
 
 ## Bruke mutate() til å endre eller lage variabler
 
-Mutate() brukes til å lage nye variabler (=vektor) fra andre variabler (vektorer). Kan brukes alene eller med across() for å lage flere variabler samtidig
+Mutate() brukes til å lage nye variabler (=vektorer) fra andre variabler. Kan brukes alene eller med across() for å lage flere variabler samtidig
 
 Her bruker vi mutate() til å lage en variabel for pingvinBMI basert på vekt og flipperlengde. Samtidig gjør vi en assign (\<-) sånn at vi endrer den opprinnelige dataframen.
 
@@ -170,18 +180,15 @@ penguins %>%
             mean_bd = mean(bill_depth_mm, na.rm = T)
             )
 
-# Eller bare samme funksjon, her mean(), på alle variabler
+# Eller bare samme funksjon sammen med across(), her mean(), på alle variabler som slutter på "mm"
 penguins_filt %>%
   summarise(across(ends_with("mm"), mean))
 
 
-# Kan legge inn gruppe for å få gruppevis per øy
+# Kan legge inn gruppering med group_by() for å få gruppevis oppsummering
 penguins_filt %>%
   group_by(island)%>%
   summarise(across(ends_with("mm"), mean))
-
-
-
 ```
 
 # Grunnleggende plotting med ggplot
@@ -194,34 +201,48 @@ Programmet ggplot (grammar of graphics) har tre grunnleggende elementer:
 
 -   geometri: spesifiser hvordan data skal plottes (f.eks geom_bar, geom_point, geom_hist, ...)
 
-Ggplot fungerer godt sammen med tidyverse.
+Ggplot fungerer godt sammen med tidyverse. 
 
-Ggplot er **modulært** så kan bygges på med modifikasjoner i det uendelige. For å legge på spesifikasjoner brukes + mellom modulene.
+Ggplot er **modulært** så plottene kan bygges på med modifikasjoner i det uendelige. For å legge på spesifikasjoner brukes + mellom modulene. For eksempel kan man endre fargepalett, tittel, og legge på noen prespesifiserte utseender (themes) med +.
 
 ```{r}
 # Basic boxplot
 penguins_filt %>%
-  ggplot(aes(x=sex, y=bill_length_mm))+
+  ggplot(aes(x=sex, 
+             y=bill_length_mm))+
   geom_boxplot()
 
-# Basic boxplot men vil ha med data som points (geom_jitter()) og farger (color i aes())
+# Basic boxplot men vi vil ha med data som points (geom_jitter()) og farger (color i aes())
 penguins_filt %>%
-  ggplot(aes(x=sex, y=bill_length_mm, color=sex))+
+  ggplot(aes(x=sex, 
+             y=bill_length_mm, 
+             color=sex))+
   geom_boxplot()+
   geom_jitter()
 
 # Scatterplot, legger til farger i aes()
 penguins_filt %>%
-  ggplot(aes(x=body_mass_g, y=flipper_length_mm, color=species))+
+  ggplot(aes(x=body_mass_g, 
+             y=flipper_length_mm, 
+             color=species))+
   geom_point()
 
 # Legger til "theme" for å modifisere utseende
 penguins_filt %>%
-  ggplot(aes(x=body_mass_g, y=flipper_length_mm, color=species))+
+  ggplot(aes(x=body_mass_g, 
+             y=flipper_length_mm, 
+             color=species))+
   geom_point()+
   theme_bw()
 ```
 
+Øvelse: lag et scatterplot (geom_point) fra penguins_filt som viser nebbdybde (bill_length_mm) på x-aksen og nebblengde (bill_depth_mm) på y-aksen. Angi farger etter art (species). Bruk tema "theme_classic" for å styre utseendet.
+```{r Øvelse 3}
+
+
+```
+
+### Histogram med gruppering og fargespesifisering
 Et litt mer avansert plott: Histogram over flipperlengde, farget per pingvinart, med farge spesifisert med scale_fill_manual()
 
 ```{r message=FALSE, warning=FALSE}
@@ -234,6 +255,7 @@ penguins_filt %>%
   scale_fill_manual(values = c("darkorange","darkorchid","cyan4"))
 ```
 
+### Lineær regresjon i ggplot
 En siste sving: legge på en lineær regresjon for hver pingvinart. Fargen angir gruppering til lm.
 
 ```{r}
