@@ -10,11 +10,11 @@ library(palmerpenguins)
 
 # En rask intro til dplyr
 
-Pakken tidyverse laster inn pakkene dplyr,, readr, forcats, stringr, ggplot2, tibble, lubridate, tidyr, purrr. Disse fungerer godt sammen med pipes.
+Pakken tidyverse laster inn pakkene dplyr, readr, forcats, stringr, ggplot2, tibble, lubridate, tidyr, purrr. Disse fungerer godt sammen med **pipes**.
 
 En *pipe* er symbolet %\>% (eller \|\>) med hurtigtast ctrl-shift-m.
 
-Pipen tar innholdet på venstre side og legger det som første argument til funksjonen på høyre side .
+Pipen tar innholdet på venstre side (oftest en dataframe) og legger det som første argument til funksjonen på høyre side. Funksjonene returnerer en ny dataframe.
 
 -   x %\>% f(y) er det samme som f(x,y)
 
@@ -37,10 +37,6 @@ penguins %>%
 
 ```
 
-## Oppsummere data med dplyr
-
-Pipen gjør at første argument i funksjonen er det som kommer før pipen.
-
 For å oppsummere data med tidyverse bruker man "summarise" funksjonene. Disse tar en vektor med verdier og returnerer en enkeltverdi, f.eks:
 
 -   first/last/nth: første/siste/n-te verdi
@@ -51,14 +47,17 @@ For å oppsummere data med tidyverse bruker man "summarise" funksjonene. Disse t
 
 ```{r addition}
 
+#Base R
 mean(penguins$body_mass_g, na.rm=T)
 
+# Summarise funksjonen
+summarise(penguins, mean_bmg=mean(body_mass_g, na.rm=T))
+
+# Gir samme svar som
 penguins %>% 
-  summarise(mean_bmg = mean(body_mass_g, na.rm = T))
+  summarise(mean_bmg_pipe = mean(body_mass_g, na.rm = T))
 
 #Øvelse: Lag en dplyr kode som finner minimum av nebblengde (bill_length_mm)
-
-penguins %>% summarise(min_bl = min(bill_length_mm, na.rm = T))
 
 
 ```
