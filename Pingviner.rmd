@@ -9,6 +9,7 @@ library(palmerpenguins)
 ```
 
 # En rask intro til dplyr
+
 Kilde: Boken ["R for Data Science"](https://r4ds.hadley.nz/) av HAdley Wickham.
 
 Pakken tidyverse laster inn pakkene dplyr, readr, forcats, stringr, ggplot2, tibble, lubridate, tidyr, purrr. Disse fungerer godt sammen med **pipes**.
@@ -201,7 +202,7 @@ Programmet ggplot (grammar of graphics) har tre grunnleggende elementer:
 
 -   geometri: spesifiser hvordan data skal plottes (f.eks geom_bar, geom_point, geom_hist, ...)
 
-Ggplot fungerer godt sammen med tidyverse. 
+Ggplot fungerer godt sammen med tidyverse.
 
 Ggplot er **modulært** så plottene kan bygges på med modifikasjoner i det uendelige. For å legge på spesifikasjoner brukes + mellom modulene. For eksempel kan man endre fargepalett, tittel, og legge på noen prespesifiserte utseender (themes) med +.
 
@@ -237,12 +238,14 @@ penguins_filt %>%
 ```
 
 Øvelse: lag et scatterplot (geom_point) fra penguins_filt som viser nebbdybde (bill_length_mm) på x-aksen og nebblengde (bill_depth_mm) på y-aksen. Angi farger etter art (species). Bruk tema "theme_classic" for å styre utseendet.
+
 ```{r Øvelse 3}
 
 
 ```
 
 ### Histogram med gruppering og fargespesifisering
+
 Et litt mer avansert plott: Histogram over flipperlengde, farget per pingvinart, med farge spesifisert med scale_fill_manual()
 
 ```{r message=FALSE, warning=FALSE}
@@ -256,6 +259,7 @@ penguins_filt %>%
 ```
 
 ### Lineær regresjon i ggplot
+
 En siste sving: legge på en lineær regresjon for hver pingvinart. Fargen angir gruppering til lm.
 
 ```{r}
